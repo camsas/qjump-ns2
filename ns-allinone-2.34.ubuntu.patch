@@ -1,0 +1,72 @@
+diff -rupN ns-allinone-2.34/ns-2.34/linkstate/ls.h ns-allinone-2.34-ubutnu/ns-2.34/linkstate/ls.h
+--- ns-allinone-2.34/ns-2.34/linkstate/ls.h	2009-06-14 18:35:43.000000000 +0100
++++ ns-allinone-2.34-ubutnu/ns-2.34/linkstate/ls.h	2015-03-04 16:42:18.618790250 +0000
+@@ -134,7 +134,7 @@ public:
+ 		return ib.second ? ib.first : baseMap::end();
+ 	}
+ 
+-	void eraseAll() { erase(baseMap::begin(), baseMap::end()); }
++	void eraseAll() { this->erase(baseMap::begin(), baseMap::end()); }
+ 	T* findPtr(Key key) {
+ 		iterator it = baseMap::find(key);
+ 		return (it == baseMap::end()) ? (T *)NULL : &((*it).second);
+diff -rupN ns-allinone-2.34/ns-2.34/mac/mac-802_11Ext.h ns-allinone-2.34-ubutnu/ns-2.34/mac/mac-802_11Ext.h
+--- ns-allinone-2.34/ns-2.34/mac/mac-802_11Ext.h	2009-06-14 18:35:44.000000000 +0100
++++ ns-allinone-2.34-ubutnu/ns-2.34/mac/mac-802_11Ext.h	2015-03-04 15:52:13.150820258 +0000
+@@ -62,6 +62,7 @@
+ #define GET_ETHER_TYPE(x)		GET2BYTE((x))
+ #define SET_ETHER_TYPE(x,y)            {u_int16_t t = (y); STORE2BYTE(x,&t);}
+ #include "wireless-phyExt.h"
++#include <stddef.h>
+ 
+ /* ======================================================================
+  Frame Formats
+diff -rupN ns-allinone-2.34/ns-2.34/mobile/nakagami.cc ns-allinone-2.34-ubutnu/ns-2.34/mobile/nakagami.cc
+--- ns-allinone-2.34/ns-2.34/mobile/nakagami.cc	2009-06-14 18:35:45.000000000 +0100
++++ ns-allinone-2.34-ubutnu/ns-2.34/mobile/nakagami.cc	2015-03-04 15:51:09.326820895 +0000
+@@ -180,9 +180,9 @@ double Nakagami::Pr(PacketStamp *t, Pack
+  		double resultPower;
+  		
+         if (int_m == m) {
+- 			resultPower = ErlangRandomVariable::ErlangRandomVariable(Pr/m, int_m).value();
++ 			resultPower = ErlangRandomVariable(Pr/m, int_m).value();
+  		} else {
+- 			resultPower = GammaRandomVariable::GammaRandomVariable(m, Pr/m).value();
++ 			resultPower = GammaRandomVariable(m, Pr/m).value();
+  		}
+  		return resultPower;
+ 	}
+diff -rupN ns-allinone-2.34/ns-2.34/tools/ranvar.cc ns-allinone-2.34-ubutnu/ns-2.34/tools/ranvar.cc
+--- ns-allinone-2.34/ns-2.34/tools/ranvar.cc	2009-06-14 18:35:44.000000000 +0100
++++ ns-allinone-2.34-ubutnu/ns-2.34/tools/ranvar.cc	2015-03-04 15:50:02.174821565 +0000
+@@ -216,7 +216,7 @@ double GammaRandomVariable::value()
+ 	// ACM Transactions on mathematical software, Vol. 26, No. 3, Sept. 2000
+ 	if (alpha_ < 1) {
+ 		double u = rng_->uniform(1.0);
+-		return GammaRandomVariable::GammaRandomVariable(1.0 + alpha_, beta_).value() * pow (u, 1.0 / alpha_);
++		return GammaRandomVariable(1.0 + alpha_, beta_).value() * pow (u, 1.0 / alpha_);
+ 	}
+ 	
+ 	double x, v, u;
+diff -rupN ns-allinone-2.34/otcl-1.13/configure ns-allinone-2.34-ubutnu/otcl-1.13/configure
+--- ns-allinone-2.34/otcl-1.13/configure	2009-06-14 18:35:49.000000000 +0100
++++ ns-allinone-2.34-ubutnu/otcl-1.13/configure	2015-03-04 16:45:12.590788513 +0000
+@@ -6301,7 +6301,7 @@ case $system in
+         ;;
+     Linux*)
+         SHLIB_CFLAGS="-fpic"
+-        SHLIB_LD="ld -shared"
++        SHLIB_LD=”gcc -shared” 
+         SHLIB_SUFFIX=".so"
+         DL_LIBS="-ldl"
+         SHLD_FLAGS=""
+@@ -7477,7 +7477,8 @@ $debug ||
+ if test -n "$CONFIG_FILES"; then
+ 
+ 
+-ac_cr=''
++ac_cr='
++'
+ ac_cs_awk_cr=`$AWK 'BEGIN { print "a\rb" }' </dev/null 2>/dev/null`
+ if test "$ac_cs_awk_cr" = "a${ac_cr}b"; then
+   ac_cs_awk_cr='\\r'
